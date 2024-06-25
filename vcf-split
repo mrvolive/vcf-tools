@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Separate a vCard containing multiple contacts into multiple vCard 
+
+main () {
+    local card_lines
+    local card_name
+    declare -a card_lines
+
+    while read line; do
+        # Append each line to the end of this array.
+        card_lines=("${card_lines[@]}" "$line")
+
+        # Get the contact's name, this becomes the file name.
+        if [[ "$line" =~ ^N: ]]; then
+            card_name=$(echo -n "$line" | cut -d ':' -f 2)
+        fi
+
+        # This is the end of the card, so output it.
+        if [[ "$line" =~ ^END:VCARD ]]; then
+            printf "%s\n" "${card_lines[@]}" > "$(echo -n "$card_name" | tr "[:upper:]" "[:lower:]" | tr -dc "[:alnum:]\n " | tr " " "_").vcf"
+            unset -v card_lines
+        fi
+    done < "$1"
+}
+
+if [ -z "$1" ]; then
+    echo "usage: vcf-split INPUT_FILE.vcf"
+    exit 1
+fi
+
+main "$1"
