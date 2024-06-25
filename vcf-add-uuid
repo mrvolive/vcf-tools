@@ -1,0 +1,34 @@
+#!/bin/bash -
+
+# Add an UUID to a vCard
+
+main () {
+    local card_lines
+    declare -a card_lines
+    
+    while read line; do
+        if [[ "$line" =~ ^END:VCARD ]]; then
+            break
+        fi
+
+        # Append each line to the end of this array.
+        card_lines=("${card_lines[@]}" "$line")
+        
+        if [[ "$line" =~ ^UID: ]]; then
+            echo "this card already has an UID"
+            exit 1
+        fi
+    done < "$1"
+
+    printf "%s\n" "${card_lines[@]}" > "$1"
+    printf "%s\n" "UID:$(uuidgen -r)" >> "$1"
+    printf "%s\n" "END:VCARD" >> "$1"
+    exit 0
+}
+
+if [ -z "$1" ]; then
+    echo "usage: vcf-add-uuid INPUT_FILE.vcf"
+    exit 1
+fi
+
+main "$1"
