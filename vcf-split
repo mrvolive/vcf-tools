@@ -8,8 +8,10 @@ main () {
     declare -a card_lines
 
     while read line; do
-        # Append each line to the end of this array.
-        card_lines=("${card_lines[@]}" "$line")
+        # Append each field to the end of this array.
+        if [[ "$line" =~ ^[A-Z]+[:\;] ]] && ! [[ "$line" =~ ^PHOTO: ]] ; then 
+            card_lines=("${card_lines[@]}" "$line")
+        fi
 
         # Get the contact's name, this becomes the file name.
         if [[ "$line" =~ ^N: ]]; then
