@@ -5,11 +5,12 @@
 main () {
     local card_lines
     local card_name
+    local card_number=1
     declare -a card_lines
 
     while read line; do
         # Append each field to the end of this array.
-        if [[ "$line" =~ ^[A-Z]+[:\;] ]] && ! [[ "$line" =~ ^PHOTO: ]] ; then 
+        if [[ "$line" =~ ^[[:alnum:][:punct:]]+[:\;] ]] && ! [[ "$line" =~ ^PHOTO: ]] ; then 
             card_lines=("${card_lines[@]}" "$line")
         fi
 
@@ -20,8 +21,14 @@ main () {
 
         # This is the end of the card, so output it.
         if [[ "$line" =~ ^END:VCARD ]]; then
+            if [[ -z "$card_name" ]] || [[ -f "$card_name" ]]; then
+                echo "Card : ${card_number} - Warning: there's already a card with that name in this folder or this contact has no name. Using fallback name"
+                card_name="$(date --rfc-3339 date)_card${card_number}"
+            fi
             printf "%s\n" "${card_lines[@]}" > "$(echo -n "$card_name" | tr "[:upper:]" "[:lower:]" | tr -dc "[:alnum:]\n " | tr " " "_").vcf"
             unset -v card_lines
+            unset -v card_name
+            let "card_number=card_number+1"
         fi
     done < "$1"
 }
