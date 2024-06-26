@@ -2,6 +2,7 @@
 #
 # Separate a vCard containing multiple contacts into multiple vCard 
 
+
 main () {
     local card_lines
     local card_name
@@ -22,7 +23,9 @@ main () {
         # This is the end of the card, so output it.
         if [[ "$line" =~ ^END:VCARD ]]; then
             if [[ -z "$card_name" ]] || [[ -f "$card_name" ]]; then
-                echo "Card : ${card_number} - Warning: there's already a card with that name in this folder or this contact has no name. Using fallback name"
+                if [[ $verbose -eq 1 ]]; then
+                    echo "Card : ${card_number} - Warning: there's already a card with that name in this folder or this contact has no name. Using fallback name"
+                fi
                 card_name="$(date --rfc-3339 date)_card${card_number}"
             fi
             printf "%s\n" "${card_lines[@]}" > "$(echo -n "$card_name" | tr "[:upper:]" "[:lower:]" | tr -dc "[:alnum:]\n " | tr " " "_").vcf"
@@ -33,9 +36,26 @@ main () {
     done < "$1"
 }
 
-if [ -z "$1" ]; then
-    echo "usage: vcf-split INPUT_FILE.vcf"
+usage() {
+    echo "usage: vcf-split [-v] INPUT_FILE.vcf"
+    echo "  -v    Enable verbose mode"
     exit 1
+}
+
+while getopts ":v" option; do
+    case "${option}" in
+        v)
+            declare verbose="1"
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -z "$1" ]; then
+    usage
 fi
 
 main "$1"
