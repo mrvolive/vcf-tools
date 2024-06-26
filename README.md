@@ -5,8 +5,9 @@
 **vcf-clean** : Remove unwanted vCards fields
 
 # Installation
-Put the file vcf-split and vcf-add-uuid in ```/usr/bin/``` or add them to your **PATH**
+Put the files in ```/usr/local/bin/``` or wherever you want if you add them to your *PATH*
 
 # Usage
-```vcf-split INPUT_FILE.vcf```
-```vcf-add-uuid INPUT_FILE.vcf```
+```vcf-split [-v] INPUT_FILE.vcf```
+```vcf-add-uuid INPUT_FILE.vcf INPUT_FILE2.vcf ...```
+```vcf-clean INPUT_FILE.vcf INPUT_FILE2.vcf ...```
