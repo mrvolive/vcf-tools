@@ -8,7 +8,7 @@ main () {
 
     while IFS= read -r line; do
         # Ignore lines that start with PHOTO: or a space
-        if [[ "$line" =~ ^PHOTO: ]] || [[ "$line" =~ ^\  ]]; then
+        if [[ "$line" =~ ^PHOTO: ]] || [[ "$line" =~ ^\  ]] || ! [[ "$line" =~ ^[A-Z]+[:\;] ]]; then
             continue
         fi
         card_lines+=("$line")
