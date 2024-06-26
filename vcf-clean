@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# remove unwanted vCards fields 
+
+main () {
+    local file="$1"
+    local card_lines=()
+
+    while IFS= read -r line; do
+        # Ignore lines that start with PHOTO: or a space
+        if [[ "$line" =~ ^PHOTO: ]] || [[ "$line" =~ ^\  ]]; then
+            continue
+        fi
+        card_lines+=("$line")
+
+        # This is the end of the card, so output it.
+        if [[ "$line" =~ ^END:VCARD ]]; then
+            printf "%s\n" "${card_lines[@]}" > "$file"
+            card_lines=()
+        fi
+    done < "$file"
+}
+
+if [ $# -eq 0 ]; then
+    echo "usage: vcf-clean INPUT_FILE1.vcf [INPUT_FILE2.vcf ...]"
+    exit 1
+fi
+
+for file in "$@"; do
+    if [ ! -f "$file" ]; then
+        echo "File '$file' not found!"
+        continue
+    fi
+    main "$file"
+done
+
+exit 0
